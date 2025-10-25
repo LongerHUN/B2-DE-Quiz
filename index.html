@@ -1,60 +1,51 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Wortschatz-Quiz</title>
 <style>
   body {
-    font-family: Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     background: #f3f4f6;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     height: 100vh;
+    margin: 0;
   }
   .quiz-box {
-    background: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    width: 440px;
+    width: 480px;
+    background: #fff;
+    padding: 1.6rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(10,10,10,0.08);
     text-align: center;
   }
-  .topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  .score, .counter {
-    font-weight: bold;
-  }
-  .mode-buttons button {
-    margin-left: 0.3rem;
-    padding: 0.3rem 0.6rem;
-    border: none;
-    border-radius: 0.4rem;
-    background: #e0e7ff;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  .mode-buttons button.active {
-    background: #6366f1;
-    color: white;
-  }
+  .topbar { display:flex; justify-content:space-between; margin-bottom:0.8rem; }
+  .score, .counter { font-weight:700; color:#111827; font-size:0.95rem; }
+  h2 { margin:0.6rem 0 0.9rem 0; font-size:1.25rem; color:#0f172a; }
+  #options { margin-top: 0.4rem; }
   .option {
-    display: block;
-    background: #e0e7ff;
-    margin: 0.5rem 0;
-    padding: 0.7rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: 0.2s;
+    display:block;
+    background:#e6eefc;
+    padding:0.8rem;
+    border-radius:8px;
+    margin:0.5rem 0;
+    cursor:pointer;
+    user-select:none;
+    transition: transform .08s ease, background .12s ease;
+    border:1px solid transparent;
   }
-  .option:hover { background: #c7d2fe; }
-  .correct { background: #b9f6ca !important; }
-  .wrong { background: #ff8a80 !important; }
+  .option:hover { transform: translateY(-2px); }
+  .correct { background:#d1fae5 !important; border-color:#34d399; }
+  .wrong { background:#ffdde0 !important; border-color:#ff6b6b; }
+  .finished { text-align:center; padding:1rem; }
+  .small { font-size:0.9rem; color:#374151; }
+  .lesson-btn { margin:0.2rem; padding:0.4rem 0.8rem; border:none; border-radius:6px; cursor:pointer; background:#a3d8f4; }
+  .lesson-btn.unselected { background:#e0e0e0; }
+  select { margin-top:0.5rem; padding:0.4rem; border-radius:6px; }
+  button#startQuiz { margin-top:0.5rem; padding:0.5rem 1rem; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -63,21 +54,167 @@
   <div class="topbar">
     <div class="score">Punkte: <span id="score">0</span></div>
     <div class="counter">Frage: <span id="current">0</span>/<span id="total">0</span></div>
-    <div class="mode-buttons">
-      <button id="mode2" class="active">2 Optionen</button>
-      <button id="mode3">3 Optionen</button>
-    </div>
   </div>
 
-  <h2 id="word">Lädt...</h2>
+  <div id="lessonButtons"></div>
+  <div>
+    <label>Anzahl der Antwortoptionen: </label>
+    <select id="numOptions">
+      <option value="2" selected>2</option>
+      <option value="3">3</option>
+    </select>
+  </div>
+  <button id="startQuiz">Quiz starten</button>
+
+  <h2 id="word">Wähle die Lektionen und drücke „Quiz starten“!</h2>
   <div id="options"></div>
 </div>
 
 <script>
-// IDE JÖNNEK A SAJÁT ADATAID, pl.:
-// const data = [["das Haus", "ein Gebäude zum Wohnen"], ["der Hund", "ein Haustier, das bellt"]];
-const data = [
-  ["die Anweisung", "eine offizielle oder mündliche Vorschrift"],
+// ======= Daten =======
+const data = {
+  1: [
+    ["der/die Arbeitgeber/-in", "eine Person oder Firma, die Mitarbeiter beschäftigt"],
+  ["der/die Architekt/-in", "jemand, der Gebäude plant und entwirft"],
+  ["der/die Automechaniker/-in", "jemand, der Autos repariert"],
+  ["der Autoproduzent", "Firma, die Autos herstellt"],
+  ["die Beratung", "ein Gespräch, in dem man Hilfe oder Tipps bekommt"],
+  ["die Betreuung", "Pflege oder Unterstützung von Personen"],
+  ["die Branche", "ein Wirtschaftsbereich, z. B. Bau, Handel oder Medizin"],
+  ["der Betrieb", "eine Firma oder Arbeitsstätte"],
+  ["der Familienbetrieb", "ein Unternehmen, das von einer Familie geführt wird"],
+  ["die Hilfsorganisation", "eine Gruppe, die Menschen in Not hilft"],
+  ["das internationale Unternehmen", "eine Firma, die in mehreren Ländern arbeitet"],
+  ["die Lebensmittelbranche", "Bereich, der mit Essen und Trinken zu tun hat"],
+  ["der Malerbetrieb", "eine Firma, die Malerarbeiten ausführt"],
+  ["der soziale Bereich", "Arbeit mit Menschen, z. B. Pflege oder Erziehung"],
+  ["beschäftigen", "jemanden in einer Firma arbeiten lassen"],
+  ["produzieren", "etwas herstellen"],
+  ["geistig", "mit Denken oder Wissen verbunden"],
+  ["handwerklich", "mit der Hand gearbeitet oder hergestellt"],
+  ["sozial", "mit Menschen und ihrem Zusammenleben verbunden"],
+  ["die Grundschule", "Schule für Kinder von etwa 6 bis 10 Jahren"],
+  ["die weiterführende Schule", "Schule nach der Grundschule"],
+  ["die Hauptschule", "Schulform mit praktischer Ausbildungsvorbereitung"],
+  ["die Realschule", "Schule mit mittlerem Bildungsabschluss"],
+  ["die Gesamtschule", "Schule, die alle Bildungswege kombiniert"],
+  ["das Gymnasium", "Schule, die zum Abitur führt"],
+  ["das Abitur", "höchster Schulabschluss in Deutschland"],
+  ["die Mittlere Reife", "mittlerer Schulabschluss, meist nach der Realschule"],
+  ["die Berufsausbildung", "praktische und theoretische Ausbildung für einen Beruf"],
+  ["der Bachelor", "erster Hochschulabschluss"],
+  ["der Master", "zweiter Hochschulabschluss nach dem Bachelor"],
+  ["das Zertifikat", "offizielles Dokument über Kenntnisse oder Teilnahme"],
+  ["mehr als", "größer in Menge oder Zahl"],
+  ["weniger als", "kleiner in Menge oder Zahl"],
+  ["(fast) alle", "nahezu jeder oder jede"],
+  ["die Hälfte", "50 % von etwas"],
+  ["ein Viertel", "25 % von etwas"],
+  ["ein Drittel", "33 % von etwas"],
+  ["jeder Zehnte", "10 % von allen"]
+  ],
+  2: [
+    ["der/die Ansprechpartner/-in", "eine Person, an die man sich bei Fragen wenden kann"],
+  ["die Beratungsstelle", "Ort, wo man Hilfe oder Informationen bekommt"],
+  ["das Berufspraktikum", "praktische Arbeitserfahrung in einem Beruf"],
+  ["die duale Ausbildung", "Ausbildung mit Schule und Arbeit im Betrieb"],
+  ["die Fachschule", "eine Schule für spezielle berufliche Ausbildung"],
+  ["die Fortbildung", "Kurs, um neue Kenntnisse im Beruf zu lernen"],
+  ["der Schichtdienst", "Arbeit zu unterschiedlichen Tages- und Nachtzeiten"],
+  ["die staatliche Ausbildung", "Ausbildung, die vom Staat anerkannt ist"],
+  ["die Weiterbildung", "Lernen nach der Ausbildung zur Verbesserung der Kenntnisse"],
+  ["der Wunschberuf", "der Beruf, den man gerne ausüben möchte"],
+  ["einen Beruf ausüben", "in einem Beruf arbeiten"],
+  ["finanzielle Unterstützung (vom Staat) beantragen", "Geldhilfe vom Staat anfordern"],
+  ["in der Verwaltung arbeiten", "in einem Büro oder bei einer Behörde arbeiten"],
+  ["zuständig sein", "verantwortlich für etwas sein"],
+  ["die Schwäche", "etwas, das man nicht so gut kann"],
+  ["die Stärke", "etwas, das man besonders gut kann"],
+  ["belastbar", "man kann gut mit Stress umgehen"],
+  ["kreativ", "man hat viele neue Ideen"],
+  ["teamfähig", "man kann gut mit anderen zusammenarbeiten"],
+  ["verantwortungsbewusst", "man übernimmt Verantwortung"],
+  ["die Anerkennung", "offizielle Bestätigung oder Wertschätzung"],
+  ["der Antrag", "offizielle Bitte oder Formular für eine Genehmigung"],
+  ["der Lebenslauf", "Dokument mit Informationen über Ausbildung und Arbeit"],
+  ["die Unterlagen", "wichtige Dokumente oder Papiere"],
+  ["das Zeugnis", "Dokument mit Noten oder Beurteilungen"],
+  ["die Zulassung", "Erlaubnis, etwas zu machen oder teilzunehmen"]
+  ],
+  3: [
+    ["der Arbeitsablauf", "die Reihenfolge der Arbeitsschritte"],
+  ["das Berufsfeld", "ein Bereich, in dem man arbeiten kann"],
+  ["das Fachdeutsch", "spezielle deutsche Sprache für einen Beruf"],
+  ["die Fachleute/Fachkräfte (Pl.)", "Personen mit besonderer Ausbildung oder Erfahrung"],
+  ["der/die Vermittler/-in", "jemand, der zwischen zwei Parteien vermittelt"],
+  ["die Zugangsvoraussetzung", "etwas, das man braucht, um teilnehmen zu dürfen"],
+  ["die Meisterprüfung machen", "eine Prüfung für den Meistertitel ablegen"],
+  ["persönlich vorbeikommen", "selbst an einem Ort erscheinen"],
+  ["sich beruflich neu orientieren", "einen neuen Beruf oder Weg wählen"],
+  ["die beglaubigte Kopie", "eine offizielle, bestätigte Kopie eines Dokuments"],
+  ["die beglaubigte Übersetzung", "eine offiziell bestätigte Übersetzung"],
+  ["die berufliche Anerkennung", "Bestätigung, dass ein Beruf im Ausland gültig ist"],
+  ["beantragen", "offiziell um etwas bitten"],
+  ["die Qualifikation", "Ausbildung, Wissen oder Fähigkeit für eine Arbeit"],
+  ["das Übersetzungsbüro", "Firma, die Texte übersetzt"],
+  ["der/die Einzelunternehmer/-in", "eine Person, die allein ein Unternehmen führt"],
+  ["der/die Geschäftspartner/-in", "jemand, mit dem man geschäftlich zusammenarbeitet"],
+  ["gut/schlecht anlaufen", "gut oder schlecht beginnen"],
+  ["die freiberufliche Tätigkeit", "Arbeit ohne feste Anstellung"],
+  ["sich selbständig machen", "ein eigenes Unternehmen gründen"],
+  ["ein Unternehmen", "eine Firma oder Organisation"],
+  ["die Vorkenntnisse (Pl.)", "Wissen, das man schon vorher hat"],
+  ["der Nachweis über Deutschkenntnisse (Pl.)", "Dokument, das Sprachkenntnisse bestätigt"],
+  ["der Umgang mit Kunden", "wie man mit Kunden arbeitet oder spricht"],
+  ["die Berechtigung", "das Recht, etwas zu tun"],
+  ["die Förderung", "finanzielle oder organisatorische Unterstützung"],
+  ["der Lehrgang", "ein Kurs oder eine Schulung"],
+  ["der MINT-Beruf", "Beruf in Mathematik, Informatik, Naturwissenschaft oder Technik"],
+  ["die Teilzeit", "Arbeit mit weniger Stunden pro Woche"],
+  ["die Vollzeit", "Arbeit mit normaler, kompletter Arbeitszeit"],
+  ["der gefragte Beruf", "ein Beruf, den viele Arbeitgeber suchen"],
+  ["der/die Handwerker/-in", "jemand, der handwerklich arbeitet"],
+  ["der Fachwortschatz", "spezielle Wörter eines Berufs"]
+  ],
+  4: [
+    ["die Anforderung", "etwas, das verlangt oder erwartet wird"],
+  ["der/die Arbeitssuchende", "eine Person, die Arbeit sucht"],
+  ["das mittelständische Unternehmen", "eine Firma mittlerer Größe"],
+  ["nach dem aktuellen Stand fragen", "sich erkundigen, wie weit etwas ist"],
+  ["sich an jmdn. wenden", "Kontakt zu einer Person aufnehmen"],
+  ["sich auf eine Anzeige beziehen", "eine Bewerbung wegen einer Stellenanzeige schreiben"],
+  ["sich um eine Stelle bewerben", "eine Bewerbung für einen Job schicken"],
+  ["das Ehrenamt", "eine freiwillige, unbezahlte Tätigkeit"],
+  ["die Schulbildung", "die Ausbildung in der Schule"],
+  ["die besonderen Kenntnisse (Pl.)", "spezielle Fähigkeiten oder Wissen"],
+  ["die berufliche Station", "eine Arbeitsstelle in der Laufbahn"],
+  ["die persönlichen Daten (Pl.)", "Informationen über eine Person, z. B. Name, Adresse"],
+  ["verhandlungssicher", "man kann sicher in einer Sprache sprechen und verhandeln"],
+  ["die ausgeschriebene Stelle", "ein Job, der öffentlich angeboten wird"],
+  ["ein Bewerbungsschreiben", "ein Brief, mit dem man sich bewirbt"],
+  ["verfassen", "einen Text schreiben"],
+  ["für Fragen zur Verfügung stehen", "bereit sein, Fragen zu beantworten"],
+  ["den Interessen und Qualifikationen entsprechen", "passend zu den Fähigkeiten und Wünschen sein"],
+  ["die Gehaltsvorstellung", "der gewünschte Lohn oder das gewünschte Gehalt"],
+  ["die Herausforderung", "eine schwierige, aber interessante Aufgabe"],
+  ["einen guten Eindruck machen", "positiv wirken"],
+  ["eine schwierige Situation meistern", "ein Problem erfolgreich lösen"],
+  ["sich nach dem Stand der Dinge erkundigen", "fragen, wie die aktuelle Situation ist"],
+  ["sich für einen Bewerber entscheiden", "jemanden auswählen, der den Job bekommt"],
+  ["eine Stelle antreten", "mit der neuen Arbeit beginnen"],
+  ["das Arbeitsverhältnis", "die rechtliche Beziehung zwischen Arbeitgeber und Arbeitnehmer"],
+  ["das Betriebsgeheimnis", "interne Information, die vertraulich ist"],
+  ["das Gehalt", "monatliche Bezahlung für Arbeit"],
+  ["die Kündigungsfrist", "Zeit zwischen Kündigung und Ende der Arbeit"],
+  ["die Lohnfortzahlung", "weiteres Gehalt während Krankheit"],
+  ["die Probezeit", "Zeit am Anfang einer neuen Arbeit zur Prüfung"],
+  ["die Überstunde", "Arbeit über die normale Zeit hinaus"],
+  ["der Verdienst", "das, was man durch Arbeit verdient"],
+  ["die Vergütung", "andere Bezeichnung für Bezahlung"],
+  ["die Verschwiegenheitspflicht", "Pflicht, geheime Informationen nicht weiterzugeben"]
+  ],
+  5: [
+    ["die Anweisung", "eine offizielle oder mündliche Vorschrift"],
   ["die Gefahrenstelle", "ein gefährlicher Ort, an dem man vorsichtig sein muss"],
   ["das Schild", "Hinweisschild oder Tafel mit Informationen"],
   ["der Verbesserungsvorschlag", "eine Idee, etwas besser zu machen"],
@@ -117,214 +254,136 @@ const data = [
   ["die Ordnung", "Sauberkeit und System im Arbeitsplatz"],
   ["der Putzlappen", "Tuch zum Saubermachen"],
   ["der Staubsauger", "Gerät, das Staub aufsaugt"],
-  ["das Waschbecken", "Becken zum Händewaschen"],
+  ["das Waschbecken", "Becken zum Händewaschen"]
+  ],
+};
 
-  ["die Anforderung", "etwas, das verlangt oder erwartet wird"],
-  ["der/die Arbeitssuchende", "eine Person, die Arbeit sucht"],
-  ["das mittelständische Unternehmen", "eine Firma mittlerer Größe"],
-  ["nach dem aktuellen Stand fragen", "sich erkundigen, wie weit etwas ist"],
-  ["sich an jmdn. wenden", "Kontakt zu einer Person aufnehmen"],
-  ["sich auf eine Anzeige beziehen", "eine Bewerbung wegen einer Stellenanzeige schreiben"],
-  ["sich um eine Stelle bewerben", "eine Bewerbung für einen Job schicken"],
-  ["das Ehrenamt", "eine freiwillige, unbezahlte Tätigkeit"],
-  ["die Schulbildung", "die Ausbildung in der Schule"],
-  ["die besonderen Kenntnisse (Pl.)", "spezielle Fähigkeiten oder Wissen"],
-  ["die berufliche Station", "eine Arbeitsstelle in der Laufbahn"],
-  ["die persönlichen Daten (Pl.)", "Informationen über eine Person, z. B. Name, Adresse"],
-  ["verhandlungssicher", "man kann sicher in einer Sprache sprechen und verhandeln"],
-  ["die ausgeschriebene Stelle", "ein Job, der öffentlich angeboten wird"],
-  ["ein Bewerbungsschreiben", "ein Brief, mit dem man sich bewirbt"],
-  ["verfassen", "einen Text schreiben"],
-  ["für Fragen zur Verfügung stehen", "bereit sein, Fragen zu beantworten"],
-  ["den Interessen und Qualifikationen entsprechen", "passend zu den Fähigkeiten und Wünschen sein"],
-  ["die Gehaltsvorstellung", "der gewünschte Lohn oder das gewünschte Gehalt"],
-  ["die Herausforderung", "eine schwierige, aber interessante Aufgabe"],
-  ["einen guten Eindruck machen", "positiv wirken"],
-  ["eine schwierige Situation meistern", "ein Problem erfolgreich lösen"],
-  ["sich nach dem Stand der Dinge erkundigen", "fragen, wie die aktuelle Situation ist"],
-  ["sich für einen Bewerber entscheiden", "jemanden auswählen, der den Job bekommt"],
-  ["eine Stelle antreten", "mit der neuen Arbeit beginnen"],
-  ["das Arbeitsverhältnis", "die rechtliche Beziehung zwischen Arbeitgeber und Arbeitnehmer"],
-  ["das Betriebsgeheimnis", "interne Information, die vertraulich ist"],
-  ["das Gehalt", "monatliche Bezahlung für Arbeit"],
-  ["die Kündigungsfrist", "Zeit zwischen Kündigung und Ende der Arbeit"],
-  ["die Lohnfortzahlung", "weiteres Gehalt während Krankheit"],
-  ["die Probezeit", "Zeit am Anfang einer neuen Arbeit zur Prüfung"],
-  ["die Überstunde", "Arbeit über die normale Zeit hinaus"],
-  ["der Verdienst", "das, was man durch Arbeit verdient"],
-  ["die Vergütung", "andere Bezeichnung für Bezahlung"],
-  ["die Verschwiegenheitspflicht", "Pflicht, geheime Informationen nicht weiterzugeben"],
-
-  ["der Arbeitsablauf", "die Reihenfolge der Arbeitsschritte"],
-  ["das Berufsfeld", "ein Bereich, in dem man arbeiten kann"],
-  ["das Fachdeutsch", "spezielle deutsche Sprache für einen Beruf"],
-  ["die Fachleute/Fachkräfte (Pl.)", "Personen mit besonderer Ausbildung oder Erfahrung"],
-  ["der/die Vermittler/-in", "jemand, der zwischen zwei Parteien vermittelt"],
-  ["die Zugangsvoraussetzung", "etwas, das man braucht, um teilnehmen zu dürfen"],
-  ["die Meisterprüfung machen", "eine Prüfung für den Meistertitel ablegen"],
-  ["persönlich vorbeikommen", "selbst an einem Ort erscheinen"],
-  ["sich beruflich neu orientieren", "einen neuen Beruf oder Weg wählen"],
-  ["die beglaubigte Kopie", "eine offizielle, bestätigte Kopie eines Dokuments"],
-  ["die beglaubigte Übersetzung", "eine offiziell bestätigte Übersetzung"],
-  ["die berufliche Anerkennung", "Bestätigung, dass ein Beruf im Ausland gültig ist"],
-  ["beantragen", "offiziell um etwas bitten"],
-  ["die Qualifikation", "Ausbildung, Wissen oder Fähigkeit für eine Arbeit"],
-  ["das Übersetzungsbüro", "Firma, die Texte übersetzt"],
-  ["der/die Einzelunternehmer/-in", "eine Person, die allein ein Unternehmen führt"],
-  ["der/die Geschäftspartner/-in", "jemand, mit dem man geschäftlich zusammenarbeitet"],
-  ["gut/schlecht anlaufen", "gut oder schlecht beginnen"],
-  ["die freiberufliche Tätigkeit", "Arbeit ohne feste Anstellung"],
-  ["sich selbständig machen", "ein eigenes Unternehmen gründen"],
-  ["ein Unternehmen", "eine Firma oder Organisation"],
-  ["die Vorkenntnisse (Pl.)", "Wissen, das man schon vorher hat"],
-  ["der Nachweis über Deutschkenntnisse (Pl.)", "Dokument, das Sprachkenntnisse bestätigt"],
-  ["der Umgang mit Kunden", "wie man mit Kunden arbeitet oder spricht"],
-  ["die Berechtigung", "das Recht, etwas zu tun"],
-  ["die Förderung", "finanzielle oder organisatorische Unterstützung"],
-  ["der Lehrgang", "ein Kurs oder eine Schulung"],
-  ["der MINT-Beruf", "Beruf in Mathematik, Informatik, Naturwissenschaft oder Technik"],
-  ["die Teilzeit", "Arbeit mit weniger Stunden pro Woche"],
-  ["die Vollzeit", "Arbeit mit normaler, kompletter Arbeitszeit"],
-  ["der gefragte Beruf", "ein Beruf, den viele Arbeitgeber suchen"],
-  ["der/die Handwerker/-in", "jemand, der handwerklich arbeitet"],
-  ["der Fachwortschatz", "spezielle Wörter eines Berufs"],
-
-  ["der/die Ansprechpartner/-in", "eine Person, an die man sich bei Fragen wenden kann"],
-  ["die Beratungsstelle", "Ort, wo man Hilfe oder Informationen bekommt"],
-  ["das Berufspraktikum", "praktische Arbeitserfahrung in einem Beruf"],
-  ["die duale Ausbildung", "Ausbildung mit Schule und Arbeit im Betrieb"],
-  ["die Fachschule", "eine Schule für spezielle berufliche Ausbildung"],
-  ["die Fortbildung", "Kurs, um neue Kenntnisse im Beruf zu lernen"],
-  ["der Schichtdienst", "Arbeit zu unterschiedlichen Tages- und Nachtzeiten"],
-  ["die staatliche Ausbildung", "Ausbildung, die vom Staat anerkannt ist"],
-  ["die Weiterbildung", "Lernen nach der Ausbildung zur Verbesserung der Kenntnisse"],
-  ["der Wunschberuf", "der Beruf, den man gerne ausüben möchte"],
-  ["einen Beruf ausüben", "in einem Beruf arbeiten"],
-  ["finanzielle Unterstützung (vom Staat) beantragen", "Geldhilfe vom Staat anfordern"],
-  ["in der Verwaltung arbeiten", "in einem Büro oder bei einer Behörde arbeiten"],
-  ["zuständig sein", "verantwortlich für etwas sein"],
-  ["die Schwäche", "etwas, das man nicht so gut kann"],
-  ["die Stärke", "etwas, das man besonders gut kann"],
-  ["belastbar", "man kann gut mit Stress umgehen"],
-  ["kreativ", "man hat viele neue Ideen"],
-  ["teamfähig", "man kann gut mit anderen zusammenarbeiten"],
-  ["verantwortungsbewusst", "man übernimmt Verantwortung"],
-  ["die Anerkennung", "offizielle Bestätigung oder Wertschätzung"],
-  ["der Antrag", "offizielle Bitte oder Formular für eine Genehmigung"],
-  ["der Lebenslauf", "Dokument mit Informationen über Ausbildung und Arbeit"],
-  ["die Unterlagen", "wichtige Dokumente oder Papiere"],
-  ["das Zeugnis", "Dokument mit Noten oder Beurteilungen"],
-  ["die Zulassung", "Erlaubnis, etwas zu machen oder teilzunehmen"],
-
-  ["der/die Arbeitgeber/-in", "eine Person oder Firma, die Mitarbeiter beschäftigt"],
-  ["der/die Architekt/-in", "jemand, der Gebäude plant und entwirft"],
-  ["der/die Automechaniker/-in", "jemand, der Autos repariert"],
-  ["der Autoproduzent", "Firma, die Autos herstellt"],
-  ["die Beratung", "ein Gespräch, in dem man Hilfe oder Tipps bekommt"],
-  ["die Betreuung", "Pflege oder Unterstützung von Personen"],
-  ["die Branche", "ein Wirtschaftsbereich, z. B. Bau, Handel oder Medizin"],
-  ["der Betrieb", "eine Firma oder Arbeitsstätte"],
-  ["der Familienbetrieb", "ein Unternehmen, das von einer Familie geführt wird"],
-  ["die Hilfsorganisation", "eine Gruppe, die Menschen in Not hilft"],
-  ["das internationale Unternehmen", "eine Firma, die in mehreren Ländern arbeitet"],
-  ["die Lebensmittelbranche", "Bereich, der mit Essen und Trinken zu tun hat"],
-  ["der Malerbetrieb", "eine Firma, die Malerarbeiten ausführt"],
-  ["der soziale Bereich", "Arbeit mit Menschen, z. B. Pflege oder Erziehung"],
-  ["beschäftigen", "jemanden in einer Firma arbeiten lassen"],
-  ["produzieren", "etwas herstellen"],
-  ["geistig", "mit Denken oder Wissen verbunden"],
-  ["handwerklich", "mit der Hand gearbeitet oder hergestellt"],
-  ["sozial", "mit Menschen und ihrem Zusammenleben verbunden"],
-  ["die Grundschule", "Schule für Kinder von etwa 6 bis 10 Jahren"],
-  ["die weiterführende Schule", "Schule nach der Grundschule"],
-  ["die Hauptschule", "Schulform mit praktischer Ausbildungsvorbereitung"],
-  ["die Realschule", "Schule mit mittlerem Bildungsabschluss"],
-  ["die Gesamtschule", "Schule, die alle Bildungswege kombiniert"],
-  ["das Gymnasium", "Schule, die zum Abitur führt"],
-  ["das Abitur", "höchster Schulabschluss in Deutschland"],
-  ["die Mittlere Reife", "mittlerer Schulabschluss, meist nach der Realschule"],
-  ["die Berufsausbildung", "praktische und theoretische Ausbildung für einen Beruf"],
-  ["der Bachelor", "erster Hochschulabschluss"],
-  ["der Master", "zweiter Hochschulabschluss nach dem Bachelor"],
-  ["das Zertifikat", "offizielles Dokument über Kenntnisse oder Teilnahme"],
-  ["mehr als", "größer in Menge oder Zahl"],
-  ["weniger als", "kleiner in Menge oder Zahl"],
-  ["(fast) alle", "nahezu jeder oder jede"],
-  ["die Hälfte", "50 % von etwas"],
-  ["ein Viertel", "25 % von etwas"],
-  ["ein Drittel", "33 % von etwas"],
-  ["jeder Zehnte", "10 % von allen"]
-];
-
+// ===== Globális változók =====
+let currentQuizData = [];
 let used = [];
 let score = 0;
-let mode = 2; // alapértelmezett: 2 opció
 let current = 0;
+let selectedLessons = [];
+let numOptions = 2;
 
-document.getElementById("mode2").onclick = () => setMode(2);
-document.getElementById("mode3").onclick = () => setMode(3);
+const totalEl = document.getElementById("total");
+const currentEl = document.getElementById("current");
+const scoreEl = document.getElementById("score");
+const wordEl = document.getElementById("word");
+const optionsEl = document.getElementById("options");
+const lessonButtonsDiv = document.getElementById("lessonButtons");
+const numOptionsSelect = document.getElementById("numOptions");
 
-function setMode(m) {
-  mode = m;
-  document.getElementById("mode2").classList.toggle("active", mode === 2);
-  document.getElementById("mode3").classList.toggle("active", mode === 3);
-}
+// ===== Lektionen-Buttons =====
+Object.keys(data).forEach(lesson => {
+  const btn = document.createElement("button");
+  btn.textContent = `Lektion ${lesson}`;
+  btn.classList.add("lesson-btn");
+  btn.dataset.lesson = lesson;
+  btn.dataset.selected = "true";
+  btn.onclick = () => {
+    btn.dataset.selected = btn.dataset.selected === "true" ? "false" : "true";
+    btn.classList.toggle("unselected", btn.dataset.selected === "false");
+  };
+  lessonButtonsDiv.appendChild(btn);
+});
 
-function updateScore(change) {
-  score += change;
-  document.getElementById("score").textContent = score;
+// ===== Quiz starten =====
+document.getElementById("startQuiz").onclick = () => {
+  selectedLessons = Array.from(lessonButtonsDiv.children)
+    .filter(btn => btn.dataset.selected === "true")
+    .map(btn => parseInt(btn.dataset.lesson));
+
+  numOptions = parseInt(numOptionsSelect.value);
+
+  currentQuizData = selectedLessons.length === 0 ? Object.values(data).flat() : selectedLessons.flatMap(l => data[l] || []);
+
+  used = [];
+  current = 0;
+  score = 0;
+  scoreEl.textContent = score;
+
+  totalEl.textContent = currentQuizData.length; // teljes számláló
+  currentEl.textContent = 0;
+
+  nextQuestion();
+};
+
+// ===== Quiz-Logik =====
+function safeRandomIndexFiltered(arr, excludeIndexes = []) {
+  if (arr.length === 0) return -1;
+  let idx;
+  let tries = 0;
+  do {
+    idx = Math.floor(Math.random() * arr.length);
+    tries++;
+    if (tries > 500) break;
+  } while (excludeIndexes.includes(idx));
+  return idx;
 }
 
 function nextQuestion() {
-  if (used.length === data.length) {
-    document.querySelector(".quiz-box").innerHTML = `<h2>🎉 Super! Du bist fertig!</h2>
-      <p>Endstand: <b>${score}</b> Punkte</p>`;
+  if (currentQuizData.length === 0) {
+    wordEl.textContent = "Keine Wörter in den ausgewählten Lektionen.";
+    optionsEl.innerHTML = "";
+    currentEl.textContent = "0";
+    totalEl.textContent = "0";
+    return;
+  }
+
+  if (used.length === currentQuizData.length) {
+    document.querySelector(".quiz-box").innerHTML = `
+      <div class="finished">
+        <h2>🎉 Fertig!</h2>
+        <p class="small">Endstand: <strong>${score}</strong> Punkte</p>
+        <p class="small">Du hast alle Fragen bearbeitet.</p>
+      </div>`;
     return;
   }
 
   let index;
-  do { index = Math.floor(Math.random() * data.length); }
+  do { index = Math.floor(Math.random() * currentQuizData.length); }
   while (used.includes(index));
   used.push(index);
   current++;
 
-  const [word, correct] = data[index];
-  document.getElementById("word").textContent = word;
-  document.getElementById("current").textContent = current;
-  document.getElementById("total").textContent = data.length;
+  currentEl.textContent = current;
 
+  const [word, correct] = currentQuizData[index];
+  wordEl.textContent = word;
+
+  // Opciók előállítása
   const options = [correct];
-  while (options.length < mode) {
-    const randomDef = data[Math.floor(Math.random() * data.length)][1];
-    if (!options.includes(randomDef)) options.push(randomDef);
+  while (options.length < numOptions) {
+    let otherIdx = safeRandomIndexFiltered(currentQuizData, [index]);
+    const def = currentQuizData[otherIdx]?.[1] || correct;
+    if (!options.includes(def)) options.push(def);
   }
 
   options.sort(() => Math.random() - 0.5);
 
-  const container = document.getElementById("options");
-  container.innerHTML = "";
+  optionsEl.innerHTML = "";
   options.forEach(opt => {
-    const div = document.createElement("div");
-    div.textContent = opt;
-    div.className = "option";
-    div.onclick = () => {
+    const btn = document.createElement("div");
+    btn.className = "option";
+    btn.textContent = opt;
+    btn.onclick = () => {
       if (opt === correct) {
-        div.classList.add("correct");
-        updateScore(1);
+        btn.classList.add("correct");
+        score += 1;
+        scoreEl.textContent = score;
         setTimeout(nextQuestion, 700);
       } else {
-        div.classList.add("wrong");
-        updateScore(-1);
-        setTimeout(() => div.classList.remove("wrong"), 600);
+        btn.classList.add("wrong");
+        score -= 1;
+        scoreEl.textContent = score;
+        setTimeout(() => btn.classList.remove("wrong"), 600);
       }
     };
-    container.appendChild(div);
+    optionsEl.appendChild(btn);
   });
 }
-
-nextQuestion();
 </script>
 
 </body>
 </html>
-
