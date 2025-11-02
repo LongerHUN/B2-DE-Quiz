@@ -278,9 +278,9 @@ const numOptionsSelect = document.getElementById("numOptions");
 Object.keys(data).forEach(lesson => {
   const btn = document.createElement("button");
   btn.textContent = `Lektion ${lesson}`;
-  btn.classList.add("lesson-btn");
+  btn.classList.add("lesson-btn", "unselected"); // alapból szürke, nincs kiválasztva
   btn.dataset.lesson = lesson;
-  btn.dataset.selected = "true";
+  btn.dataset.selected = "false"; // alapértelmezett: nincs kiválasztva
   btn.onclick = () => {
     btn.dataset.selected = btn.dataset.selected === "true" ? "false" : "true";
     btn.classList.toggle("unselected", btn.dataset.selected === "false");
@@ -387,3 +387,4 @@ function nextQuestion() {
 
 </body>
 </html>
+
