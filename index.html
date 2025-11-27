@@ -68,6 +68,17 @@
 
   <h2 id="word">Wähle die Lektionen und drücke „Quiz starten“!</h2>
   <div id="options"></div>
+
+  <h4 style="margin-top:1.2rem; color:#1f2937;">Verlauf:</h4>
+<div id="history" 
+     style="max-height:200px; 
+            overflow-y:auto; 
+            border:1px solid #e5e7eb; 
+            padding:0.6rem; 
+            border-radius:8px; 
+            background:#f9fafb;">
+</div>
+
 </div>
 
 <script>
@@ -353,6 +364,8 @@ let score = 0;
 let current = 0;
 let selectedLessons = [];
 let numOptions = 2;
+let historyList = [];
+
 
 const totalEl = document.getElementById("total");
 const currentEl = document.getElementById("current");
@@ -451,25 +464,61 @@ function nextQuestion() {
   options.sort(() => Math.random() - 0.5);
 
   optionsEl.innerHTML = "";
-  options.forEach(opt => {
-    const btn = document.createElement("div");
-    btn.className = "option";
-    btn.textContent = opt;
-    btn.onclick = () => {
-      if (opt === correct) {
-        btn.classList.add("correct");
-        score += 1;
-        scoreEl.textContent = score;
-        setTimeout(nextQuestion, 700);
-      } else {
-        btn.classList.add("wrong");
-        score -= 1;
-        scoreEl.textContent = score;
-        setTimeout(() => btn.classList.remove("wrong"), 600);
-      }
-    };
-    optionsEl.appendChild(btn);
-  });
+options.forEach(opt => {
+  const btn = document.createElement("div");
+  btn.className = "option";
+  btn.textContent = opt;
+
+  btn.onclick = () => {
+    const wasCorrect = opt === correct;
+
+    // History mentése
+    historyList.push({
+      word,
+      answer: opt,
+      correct: wasCorrect
+    });
+    updateHistory();
+
+    if (wasCorrect) {
+      btn.classList.add("correct");
+      score += 1;
+      scoreEl.textContent = score;
+      setTimeout(nextQuestion, 700);
+    } else {
+      btn.classList.add("wrong");
+      score -= 1;
+      scoreEl.textContent = score;
+      setTimeout(() => btn.classList.remove("wrong"), 600);
+    }
+  };
+
+  optionsEl.appendChild(btn);
+});
+
+function updateHistory() {
+  const historyEl = document.getElementById("history");
+
+  historyEl.innerHTML = historyList.map(item => {
+    const answerColor = item.correct ? "#059669" : "#dc2626";
+
+    return `
+      <div style="margin-bottom:0.7rem; padding-bottom:0.4rem; border-bottom:1px solid #e5e7eb;">
+        
+        <div style="font-weight:bold; color:#111827;">
+          ${item.word}
+        </div>
+
+        <div style="margin-top:2px; color:${answerColor}; font-weight:600;">
+          ${item.answer}
+        </div>
+
+      </div>
+    `;
+  }).join("");
+}
+
+
 }
 </script>
 
