@@ -5,33 +5,92 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Wortschatz-Quiz</title>
 <style>
+  :root {
+    --bg-color: #f3f4f6;
+    --box-bg: #fff;
+    --text-color: #0f172a;
+    --score-color: #111827;
+    --option-bg: #e6eefc;
+    --option-hover: #dbeafe;
+    --option-correct: #d1fae5;
+    --option-wrong: #ffdde0;
+    --lesson-btn-bg: #a3d8f4;
+    --lesson-btn-unselected: #e0e0e0;
+    --history-bg: #f9fafb;
+    --history-border: #e5e7eb;
+    --history-word-color: #111827;   /* világos mód */
+    --start-btn-bg: #3b82f6;
+    --start-btn-text: #fff;
+    --select-bg: #fff;
+    --select-text: #0f172a;
+    --select-border: #d1d5db;
+  }
+
+  body.dark {
+    --bg-color: #1f2937;
+    --box-bg: #111827;
+    --text-color: #f9fafb;
+    --score-color: #f9fafb;
+    --option-bg: #374151;
+    --option-hover: #4b5563;
+    --option-correct: #16a34a;
+    --option-wrong: #dc2626;
+    --lesson-btn-bg: #2563eb;
+    --lesson-btn-unselected: #4b5563;
+    --history-bg: #1e293b;
+    --history-border: #374151;
+    --history-word-color: #f3f4f6;   /* sötét módhoz világosabb */
+    --start-btn-bg: #2563eb;
+    --start-btn-text: #f9fafb;
+    --select-bg: #374151;
+    --select-text: #f9fafb;
+    --select-border: #4b5563;
+  }
+
   body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #f3f4f6;
+    background: var(--bg-color);
+    color: var(--text-color);
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100vh;
     margin: 0;
   }
+
   .quiz-box {
     width: 480px;
-    background: #fff;
+    background: var(--box-bg);
     padding: 1.6rem;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(10,10,10,0.08);
     text-align: center;
+    position: relative;
   }
-  .topbar { display:flex; justify-content:space-between; margin-bottom:0.8rem; }
-  .score, .counter { font-weight:700; color:#111827; font-size:0.95rem; }
-  h1 { margin:0.8rem 0 0.9rem 0; font-size:1.25rem; color:#0f172a; }
-  #options { margin-top: 0.6rem; }
-.option {
-    display: flex;              /* flexbox */
-    align-items: center;        /* függőlegesen közép */
-    justify-content: center;    /* vízszintesen közép */
 
-    background: #e6eefc;
+  /* Dark mode toggle button */
+  #darkModeToggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 4px;
+    background: #000;
+    cursor: pointer;
+  }
+
+  .topbar { display:flex; justify-content:space-between; margin-bottom:0.8rem; }
+  .score, .counter { font-weight:700; color: var(--score-color); font-size:0.95rem; }
+  h1 { margin:0.8rem 0 0.9rem 0; font-size:1.25rem; color: var(--text-color); }
+  #options { margin-top: 0.6rem; }
+
+  .option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--option-bg);
     padding: 0.8rem;
     border-radius: 8px;
     margin: 0.5rem 0;
@@ -39,28 +98,54 @@
     user-select: none;
     transition: transform .08s ease, background .12s ease;
     border: 1px solid transparent;
-
     min-height: 50px;
-    text-align: center;         /* több sor esetén is középre */
-}
-
-
-
+    text-align: center;
+  }
 
   .option:hover { transform: translateY(-2px); }
-  .correct { background:#d1fae5 !important; border-color:#34d399; }
-  .wrong { background:#ffdde0 !important; border-color:#ff6b6b; }
+  .correct { background: var(--option-correct) !important; border-color:#34d399; }
+  .wrong { background: var(--option-wrong) !important; border-color:#ff6b6b; }
+
   .finished { text-align:center; padding:1rem; }
   .small { font-size:0.9rem; color:#374151; }
-  .lesson-btn { margin:0.2rem; padding:0.4rem 0.8rem; border:none; border-radius:6px; cursor:pointer; background:#a3d8f4; }
-  .lesson-btn.unselected { background:#e0e0e0; }
-  select { margin-top:0.5rem; padding:0.4rem; border-radius:6px; }
-  button#startQuiz { margin-top:0.5rem; padding:0.5rem 1rem; cursor:pointer; }
+
+  .lesson-btn { margin:0.2rem; padding:0.4rem 0.8rem; border:none; border-radius:6px; cursor:pointer; background: var(--lesson-btn-bg); }
+  .lesson-btn.unselected { background: var(--lesson-btn-unselected); }
+  select {
+  margin-top: 0.5rem;
+  padding: 0.4rem;
+  border-radius: 6px;
+  background: var(--select-bg);
+  color: var(--select-text);
+  border: 1px solid var(--select-border);
+}
+  button#startQuiz {
+  margin-top:0.5rem;
+  padding:0.5rem 1rem;
+  cursor:pointer;
+  background: var(--start-btn-bg);
+  color: var(--start-btn-text);
+  border: none;
+  border-radius: 6px;
+}
+
+  #history {
+  height:140px;
+  overflow-y:auto;
+  border:1px solid var(--history-border);
+  padding:0.6rem;
+  border-radius:8px;
+  background: var(--history-bg);  /* ide jön a változó */
+  box-sizing:border-box;
+}
+
 </style>
+
 </head>
 <body>
-
+<button id="darkModeToggle"></button>
 <div class="quiz-box">
+  
   <div class="topbar">
     <div class="score">Punkte: <span id="score">0</span></div>
     <div class="counter">Frage: <span id="current">0</span>/<span id="total">0</span></div>
@@ -80,14 +165,7 @@
   <div id="options"></div>
 
   <h4 style="margin-top:1.2rem; color:#1f2937;">Verlauf:</h4>
-<div id="history" 
-     style="height:140px;
-            overflow-y:auto; 
-            border:1px solid #e5e7eb; 
-            padding:0.6rem; 
-            border-radius:8px; 
-            background:#f9fafb;
-            box-sizing:border-box;">
+<div id="history">
 </div>
 
 
@@ -401,6 +479,11 @@ Object.keys(data).forEach(lesson => {
   lessonButtonsDiv.appendChild(btn);
 });
 
+
+document.getElementById("darkModeToggle").onclick = () => {
+  document.body.classList.toggle("dark");
+};
+
 // ===== Quiz starten =====
 document.getElementById("startQuiz").onclick = () => {
   selectedLessons = Array.from(lessonButtonsDiv.children)
@@ -517,8 +600,8 @@ function updateHistory() {
 
     return `
       <div style="margin-bottom:0.7rem; padding-bottom:0.4rem; border-bottom:1px solid #e5e7eb;">
-        <div style="font-weight:bold; color:#111827;">
-          ${item.word}
+        <div style="font-weight:bold; color: var(--history-word-color);">
+        ${item.word}
         </div>
         <div style="margin-top:2px; color:${answerColor}; font-weight:600;">
           ${item.answer}
@@ -536,6 +619,7 @@ function updateHistory() {
 
 </body>
 </html>
+
 
 
 
