@@ -26,17 +26,27 @@
   .score, .counter { font-weight:700; color:#111827; font-size:0.95rem; }
   h2 { margin:0.6rem 0 0.9rem 0; font-size:1.25rem; color:#0f172a; }
   #options { margin-top: 0.4rem; }
-  .option {
-    display:block;
-    background:#e6eefc;
-    padding:0.8rem;
-    border-radius:8px;
-    margin:0.5rem 0;
-    cursor:pointer;
-    user-select:none;
+.option {
+    display: flex;              /* flexbox */
+    align-items: center;        /* függőlegesen közép */
+    justify-content: center;    /* vízszintesen közép */
+
+    background: #e6eefc;
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin: 0.5rem 0;
+    cursor: pointer;
+    user-select: none;
     transition: transform .08s ease, background .12s ease;
-    border:1px solid transparent;
-  }
+    border: 1px solid transparent;
+
+    min-height: 50px;
+    text-align: center;         /* több sor esetén is középre */
+}
+
+
+
+
   .option:hover { transform: translateY(-2px); }
   .correct { background:#d1fae5 !important; border-color:#34d399; }
   .wrong { background:#ffdde0 !important; border-color:#ff6b6b; }
@@ -71,7 +81,7 @@
 
   <h4 style="margin-top:1.2rem; color:#1f2937;">Verlauf:</h4>
 <div id="history" 
-     style="height:160px;
+     style="height:140px;
             overflow-y:auto; 
             border:1px solid #e5e7eb; 
             padding:0.6rem; 
@@ -79,6 +89,7 @@
             background:#f9fafb;
             box-sizing:border-box;">
 </div>
+
 
 </div>
 
@@ -525,7 +536,6 @@ function updateHistory() {
 
 </body>
 </html>
-
 
 
 
