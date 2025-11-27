@@ -410,7 +410,10 @@ document.getElementById("startQuiz").onclick = () => {
   numOptions = parseInt(numOptionsSelect.value);
 
   currentQuizData = selectedLessons.length === 0 ? Object.values(data).flat() : selectedLessons.flatMap(l => data[l] || []);
-
+  
+  historyList = [];    // Verlauf törlése
+  updateHistory();     // megjelenítés frissítése
+  startQuiz();         // kvíz indítása
   used = [];
   current = 0;
   score = 0;
@@ -530,6 +533,7 @@ function updateHistory() {
 
 </body>
 </html>
+
 
 
 
