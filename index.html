@@ -511,7 +511,7 @@ function nextQuestion() {
 function updateHistory() {
   const historyEl = document.getElementById("history");
 
-  // Fordítsuk meg a listát, hogy a legfrissebb legyen felül
+  // Lista fordítása, legfrissebb felül
   historyEl.innerHTML = [...historyList].reverse().map(item => {
     const answerColor = item.correct ? "#059669" : "#dc2626";
 
@@ -526,12 +526,17 @@ function updateHistory() {
       </div>
     `;
   }).join("");
+
+  // Scroll a tetejére, hogy a legfrissebb válasz látszódjon
+  historyEl.scrollTop = 0;
 }
+
 
 </script>
 
 </body>
 </html>
+
 
 
 
