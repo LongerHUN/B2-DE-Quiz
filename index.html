@@ -409,11 +409,15 @@ document.getElementById("startQuiz").onclick = () => {
 
   numOptions = parseInt(numOptionsSelect.value);
 
-  currentQuizData = selectedLessons.length === 0 ? Object.values(data).flat() : selectedLessons.flatMap(l => data[l] || []);
-  
-  historyList = [];    // Verlauf törlése
-  updateHistory();     // megjelenítés frissítése
-  startQuiz();         // kvíz indítása
+  currentQuizData = selectedLessons.length === 0 
+    ? Object.values(data).flat() 
+    : selectedLessons.flatMap(l => data[l] || []);
+
+  // Verlauf törlése
+  historyList = [];
+  updateHistory(); 
+
+  // Kvíz állapot visszaállítása
   used = [];
   current = 0;
   score = 0;
@@ -422,8 +426,10 @@ document.getElementById("startQuiz").onclick = () => {
   totalEl.textContent = currentQuizData.length; // teljes számláló
   currentEl.textContent = 0;
 
+  // Első kérdés
   nextQuestion();
 };
+
 
 // ===== Quiz-Logik =====
 function safeRandomIndexFiltered(arr, excludeIndexes = []) {
@@ -533,6 +539,7 @@ function updateHistory() {
 
 </body>
 </html>
+
 
 
 
