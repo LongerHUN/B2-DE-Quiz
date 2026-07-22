@@ -786,7 +786,7 @@ const numOptionsSelect = document.getElementById("numOptions");
 // ===== Lektionen-Buttons =====
 Object.keys(data).forEach(lesson => {
   const btn = document.createElement("button");
-  btn.textContent = `Lektion ${lesson}`;
+  btn.textContent = isNaN(lesson) ? lesson : `Lektion ${lesson}`;
   btn.classList.add("lesson-btn", "unselected"); // alapból szürke, nincs kiválasztva
   btn.dataset.lesson = lesson;
   btn.dataset.selected = "false"; // alapértelmezett: nincs kiválasztva
@@ -806,18 +806,20 @@ document.getElementById("darkModeToggle").onclick = () => {
 document.getElementById("startQuiz").onclick = () => {
   selectedLessons = Array.from(lessonButtonsDiv.children)
     .filter(btn => btn.dataset.selected === "true")
-    .map(btn => parseInt(btn.dataset.lesson));
+    .map(btn => btn.dataset.lesson);
 
   numOptions = parseInt(numOptionsSelect.value);
 
-  currentQuizData = selectedLessons.length === 0 ? Object.values(data).flat() : selectedLessons.flatMap(l => data[l] || []);
+  currentQuizData = selectedLessons.length === 0
+    ? Object.values(data).flat()
+    : selectedLessons.flatMap(l => data[l] || []);
 
   used = [];
   current = 0;
   score = 0;
   scoreEl.textContent = score;
 
-  totalEl.textContent = currentQuizData.length; // teljes számláló
+  totalEl.textContent = currentQuizData.length;
   currentEl.textContent = 0;
 
   nextQuestion();
